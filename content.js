@@ -1,5 +1,4 @@
 (() => {
-    // Prevent any injection on the login page
     if (window.location.href.startsWith("https://ekursy.put.poznan.pl/login")) {
         return;
     }
@@ -223,15 +222,13 @@
             const style = document.createElement("style");
             style.setAttribute("data-ekursy-style", "scrollbar");
             style.textContent = `
-        /* Sidebar-specific scrollbar styles */
         #${SIDEBAR_ID} {
           scrollbar-width: thin;
           scrollbar-color: rgba(255,255,255,0.28) transparent;
         }
         #${SIDEBAR_ID} ul[data-ekursy-courses] {
-          padding-right: 6px; /* give space for overlaying scrollbar */
+          padding-right: 6px;
         }
-        /* WebKit/Chromium */
         #${SIDEBAR_ID}::-webkit-scrollbar { width: 10px; }
         #${SIDEBAR_ID}::-webkit-scrollbar-track { background: transparent; }
         #${SIDEBAR_ID}::-webkit-scrollbar-thumb {
@@ -243,7 +240,6 @@
         #${SIDEBAR_ID}::-webkit-scrollbar-thumb:hover {
           background: rgba(255,255,255,0.26);
         }
-        /* Make headings and small UI elements visible on dark bg */
         #${SIDEBAR_ID} h4 { color: #fff; margin: 0 0 8px 0; }
       `;
             try {

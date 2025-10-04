@@ -1,66 +1,66 @@
 :root {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial;
 }
 body {
-  margin: 12px;
-  width: 260px;
+    margin: 12px;
+    width: 260px;
 }
 .container h1 {
-  font-size: 16px;
-  margin: 0 0 8px;
+    font-size: 16px;
+    margin: 0 0 8px;
 }
 button {
-  display: inline-block;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #0b5fff;
-  background: #1a73e8;
-  color: #fff;
-  cursor: pointer;
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #0b5fff;
+    background: #1a73e8;
+    color: #fff;
+    cursor: pointer;
 }
 button:active {
-  transform: translateY(1px);
+    transform: translateY(1px);
 }
 label {
-  display: block;
-  margin-top: 8px;
-  font-size: 13px;
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
 }
 #manage-root h2 {
-  font-size: 13px;
-  margin: 8px 0;
+    font-size: 13px;
+    margin: 8px 0;
 }
 #manage-list {
-  max-height: 220px;
-  overflow: auto;
-  border: 1px solid #eee;
-  padding: 6px;
-  border-radius: 6px;
-  background: #fafafa;
+    max-height: 220px;
+    overflow: auto;
+    border: 1px solid #eee;
+    padding: 6px;
+    border-radius: 6px;
+    background: #fafafa;
 }
 #manage-list .item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px;
-  border-bottom: 1px solid #f1f1f1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px;
+    border-bottom: 1px solid #f1f1f1;
 }
 #manage-list .item:last-child {
-  border-bottom: 0;
+    border-bottom: 0;
 }
 #manage-list .item label {
-  flex: 1;
-  padding-right: 8px;
+    flex: 1;
+    padding-right: 8px;
 }
 
 #width-root {
-  margin-top: 8px;
+    margin-top: 8px;
 }
 #sidebar-width {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
 }
