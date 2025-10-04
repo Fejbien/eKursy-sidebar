@@ -94,6 +94,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   } catch (e) {}
 
+  try {
+    const removeNav = document.getElementById("remove-lambda-nav");
+    if (removeNav) {
+      chrome.storage.local.get(["ekursy_remove_lambda_nav"], (r) => {
+        removeNav.checked = !!r.ekursy_remove_lambda_nav;
+      });
+      removeNav.addEventListener("change", () => {
+        try {
+          chrome.storage.local.set(
+            { ekursy_remove_lambda_nav: !!removeNav.checked },
+            () => {
+              chrome.tabs.query(
+                { active: true, currentWindow: true },
+                (tabs) => {
+                  if (!tabs || !tabs.length) return;
+                  try {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                      action: "setRemoveLambdaNav",
+                      remove: !!removeNav.checked,
+                    });
+                    if (!removeNav.checked) {
+                      try {
+                        chrome.tabs.reload(tabs[0].id);
+                      } catch (e) {}
+                    }
+                  } catch (e) {}
+                }
+              );
+            }
+          );
+        } catch (e) {}
+      });
+    }
+  } catch (e) {}
+
   persist.addEventListener("change", () => {
     chrome.storage.local.set({ persistSidebar: persist.checked });
   });

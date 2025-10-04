@@ -4,11 +4,8 @@
 
   const DEFAULT_SIDEBAR_WIDTH = 240;
   let __ekursy_prev_body_padding_left = null;
-  let __ekursy_prev_header_padding_left = null;
   let __ekursy_prev_navbar_padding_left = null;
-  let __ekursy_prev_burger_display = null;
   let __ekursy_prev_body_transition = null;
-  let __ekursy_prev_header_transition = null;
   let __ekursy_prev_navbar_transition = null;
 
   let __ekursy_cached_courses = null;
@@ -34,7 +31,6 @@
   }
 
   async function mergeWithStored(prefetched) {
-    // prefetched: [{id,fullname,shortname}]
     try {
       const stored = await loadStoredCourses();
       const byId = new Map();
@@ -73,34 +69,136 @@
     }
   }
 
-  function updateCourseHidden(id, hidden) {
-    const key = String(id);
-    __ekursy_cached_courses = (__ekursy_cached_courses || []).map((c) =>
-      c && String(c.id) === key ? Object.assign({}, c, { hidden: !!hidden }) : c
-    );
-    // persist
-    saveStoredCourses(__ekursy_cached_courses || []);
-  }
-
   function createSidebar({ noAnimation = false } = {}) {
     if (document.getElementById(SIDEBAR_ID)) return;
     const el = document.createElement("div");
     el.id = SIDEBAR_ID;
     el.setAttribute("data-ekursy", "1");
     el.style.position = "fixed";
-    el.style.top = "0";
     el.style.left = "0";
     el.style.right = "auto";
     el.style.width = DEFAULT_SIDEBAR_WIDTH + "px";
     el.style.height = "100%";
-    el.style.background = "#fff";
+    el.style.background = "#016c8f";
+    el.style.color = "#fff";
     el.style.boxShadow = "0 0 8px rgba(0,0,0,0.2)";
     el.style.zIndex = 2147483647;
     el.style.padding = "12px";
-    el.innerHTML = "<h4>eKursy Sidebar</h4>";
 
     const container = document.body || document.documentElement;
     container.appendChild(el);
+
+    try {
+      const topWrap = document.createElement("div");
+      topWrap.style.padding = "4px 4px 8px 4px";
+      topWrap.style.width = "100%";
+      const topLink = document.createElement("a");
+      topLink.href = "https://ekursy.put.poznan.pl/user/files.php";
+      topLink.target = "_self";
+      topLink.rel = "noopener noreferrer";
+      topLink.textContent = "Prywatne pliki";
+      topLink.style.display = "inline-block";
+      topLink.style.width = "100%";
+      topLink.style.textDecoration = "none";
+      topLink.style.color = "#fff";
+      topLink.style.background = "rgba(255,255,255,0.04)";
+      topLink.style.padding = "8px 10px";
+      topLink.style.borderRadius = "8px";
+      topLink.style.boxSizing = "border-box";
+      topLink.style.border = "1px solid rgba(255,255,255,0.06)";
+      topLink.addEventListener("mouseenter", () => {
+        topLink.style.background = "rgba(255,255,255,0.08)";
+      });
+      topLink.addEventListener("mouseleave", () => {
+        topLink.style.background = "rgba(255,255,255,0.04)";
+      });
+      topWrap.appendChild(topLink);
+      if (el.firstChild) el.insertBefore(topWrap, el.firstChild);
+      else el.appendChild(topWrap);
+    } catch (e) {}
+
+    try {
+      const headerHeight = 62.5;
+      el.style.top = headerHeight + "px";
+      el.style.height = `calc(100% - ${headerHeight}px)`;
+      try {
+        const headerEl =
+          document.getElementById("main-header") ||
+          document.querySelector(
+            "header, .main-header, #header, .header, .site-header, .navbar"
+          );
+        if (headerEl) {
+          headerEl.classList.add("shrink");
+
+          try {
+            if (!window.__ekursy_shrink_guard_installed) {
+              const attachObserver = (target) => {
+                try {
+                  const mo = new MutationObserver((mutations) => {
+                    for (const m of mutations) {
+                      if (
+                        m.type === "attributes" &&
+                        m.attributeName === "class"
+                      ) {
+                        try {
+                          if (!target.classList.contains("shrink")) {
+                            target.classList.add("shrink");
+                          }
+                        } catch (e) {}
+                      }
+                    }
+                  });
+                  mo.observe(target, {
+                    attributes: true,
+                    attributeFilter: ["class"],
+                    subtree: false,
+                  });
+                  window.__ekursy_shrink_header_mo = mo;
+                } catch (e) {}
+              };
+
+              attachObserver(headerEl);
+
+              try {
+                const docMo = new MutationObserver(() => {
+                  try {
+                    const current =
+                      document.getElementById("main-header") ||
+                      document.querySelector(
+                        "header, .main-header, #header, .header, .site-header, .navbar"
+                      );
+                    if (current) {
+                      if (!current.classList.contains("shrink"))
+                        current.classList.add("shrink");
+                      if (
+                        window.__ekursy_shrink_header_mo &&
+                        window.__ekursy_shrink_header_mo.target !== current
+                      ) {
+                        try {
+                          window.__ekursy_shrink_header_mo.disconnect();
+                        } catch (e) {}
+                        attachObserver(current);
+                      }
+                    }
+                  } catch (e) {}
+                });
+                (document.documentElement || document.body).observe ||
+                  docMo.observe(document.documentElement || document.body, {
+                    childList: true,
+                    subtree: true,
+                  });
+                window.__ekursy_shrink_doc_mo = docMo;
+              } catch (e) {}
+
+              window.__ekursy_shrink_guard_installed = true;
+            }
+          } catch (e) {}
+        }
+      } catch (e) {}
+    } catch (e) {
+      el.style.top = "0";
+      el.style.height = "100%";
+    }
 
     let __ekursy_disable_style = null;
     if (noAnimation) {
@@ -125,29 +223,37 @@
     }
 
     try {
-      const innerBtn = document.createElement("button");
-      innerBtn.id = "ekursy-burger-inside";
-      innerBtn.type = "button";
-      innerBtn.title = "Close";
-      innerBtn.style.position = "absolute";
-      innerBtn.style.top = "8px";
-      innerBtn.style.right = "8px";
-      innerBtn.style.width = "36px";
-      innerBtn.style.height = "36px";
-      innerBtn.style.border = "none";
-      innerBtn.style.background = "transparent";
-      innerBtn.style.cursor = "pointer";
-      innerBtn.style.fontSize = "20px";
-      innerBtn.style.lineHeight = "1";
-      innerBtn.style.borderRadius = "6px";
-      innerBtn.innerHTML = '<span style="pointer-events:none">☰</span>';
-      innerBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        onToggle();
-      });
-      el.style.position = el.style.position || "fixed";
-      el.style.boxSizing = "border-box";
-      el.appendChild(innerBtn);
+      const style = document.createElement("style");
+      style.setAttribute("data-ekursy-style", "scrollbar");
+      style.textContent = `
+        /* Sidebar-specific scrollbar styles */
+        #${SIDEBAR_ID} {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255,255,255,0.28) transparent;
+        }
+        #${SIDEBAR_ID} ul[data-ekursy-courses] {
+          padding-right: 6px; /* give space for overlaying scrollbar */
+        }
+        /* WebKit/Chromium */
+        #${SIDEBAR_ID}::-webkit-scrollbar { width: 10px; }
+        #${SIDEBAR_ID}::-webkit-scrollbar-track { background: transparent; }
+        #${SIDEBAR_ID}::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.18);
+          border-radius: 8px;
+          border: 2px solid transparent;
+          background-clip: padding-box;
+        }
+        #${SIDEBAR_ID}::-webkit-scrollbar-thumb:hover {
+          background: rgba(255,255,255,0.26);
+        }
+        /* Make headings and small UI elements visible on dark bg */
+        #${SIDEBAR_ID} h4 { color: #fff; margin: 0 0 8px 0; }
+      `;
+      try {
+        el.appendChild(style);
+      } catch (e) {
+        (document.head || document.documentElement).appendChild(style);
+      }
     } catch (e) {}
 
     (function renderCachedCourses() {
@@ -202,15 +308,15 @@
                 a.style.display = "inline-block";
                 a.style.width = "100%";
                 a.style.textDecoration = "none";
-                a.style.color = "#111";
+                a.style.color = "#fff";
                 a.style.padding = "6px 8px";
                 a.style.borderRadius = "6px";
                 a.style.background = "transparent";
                 a.style.border = "1px solid transparent";
                 a.style.boxSizing = "border-box";
                 a.addEventListener("mouseenter", () => {
-                  a.style.background = "rgba(0,0,0,0.03)";
-                  a.style.borderColor = "#e6e6e6";
+                  a.style.background = "rgba(255,255,255,0.06)";
+                  a.style.borderColor = "rgba(255,255,255,0.12)";
                 });
                 a.addEventListener("mouseleave", () => {
                   a.style.background = "transparent";
@@ -302,69 +408,6 @@
       }
     } catch (e) {}
 
-    try {
-      const header =
-        document.getElementById("main-header") ||
-        document.querySelector(
-          "header, .main-header, #header, .header, .site-header, .navbar"
-        );
-      if (header) {
-        if (__ekursy_prev_header_padding_left === null)
-          __ekursy_prev_header_padding_left = header.style.paddingLeft || "";
-        if (noAnimation) {
-          __ekursy_prev_header_transition = header.style.transition || "";
-          header.style.transition = "none";
-          header.style.paddingLeft = DEFAULT_SIDEBAR_WIDTH + "px";
-          void header.offsetHeight;
-          setTimeout(() => {
-            header.style.transition =
-              __ekursy_prev_header_transition || "padding-left 0.25s ease";
-            __ekursy_prev_header_transition = null;
-          }, 50);
-        } else {
-          header.style.transition = header.style.transition
-            ? header.style.transition + ", padding-left 0.25s ease"
-            : "padding-left 0.25s ease";
-          header.style.paddingLeft = DEFAULT_SIDEBAR_WIDTH + "px";
-        }
-        header.style.zIndex = header.style.zIndex || 2147483648;
-      }
-    } catch (e) {}
-
-    try {
-      const navbar = document.querySelector(".lambda-nav");
-      if (navbar) {
-        if (__ekursy_prev_navbar_padding_left === null)
-          __ekursy_prev_navbar_padding_left = navbar.style.paddingLeft || "";
-        if (noAnimation) {
-          __ekursy_prev_navbar_transition = navbar.style.transition || "";
-          navbar.style.transition = "none";
-          navbar.style.paddingLeft = DEFAULT_SIDEBAR_WIDTH + "px";
-          void navbar.offsetHeight;
-          setTimeout(() => {
-            navbar.style.transition =
-              __ekursy_prev_navbar_transition || "padding-left 0.25s ease";
-            __ekursy_prev_navbar_transition = null;
-          }, 50);
-        } else {
-          navbar.style.transition = navbar.style.transition
-            ? navbar.style.transition + ", padding-left 0.25s ease"
-            : "padding-left 0.25s ease";
-          navbar.style.paddingLeft = DEFAULT_SIDEBAR_WIDTH + "px";
-        }
-        navbar.style.zIndex = navbar.style.zIndex || 2147483648;
-      }
-    } catch (e) {}
-
-    try {
-      const headerBurger = document.getElementById(BURGER_ID);
-      if (headerBurger) {
-        __ekursy_prev_burger_display = headerBurger.style.display || "";
-        headerBurger.style.display = "none";
-        headerBurger.setAttribute("aria-hidden", "true");
-      }
-    } catch (e) {}
-
     if (noAnimation) {
       setTimeout(() => {
         try {
@@ -373,9 +416,7 @@
           );
           const s = document.getElementById("ekursy-disable-transition");
           if (s) s.remove();
-        } catch (e) {
-          /* ignore */
-        }
+        } catch (e) {}
       }, 80);
     }
   }
@@ -386,7 +427,6 @@
       if (el) el.style.width = w + "px";
     } catch (e) {}
 
-    // Body
     try {
       const body = document.body;
       if (body) {
@@ -411,37 +451,6 @@
       }
     } catch (e) {}
 
-    // Header
-    try {
-      const header =
-        document.getElementById("main-header") ||
-        document.querySelector(
-          "header, .main-header, #header, .header, .site-header, .navbar"
-        );
-      if (header) {
-        if (__ekursy_prev_header_padding_left === null)
-          __ekursy_prev_header_padding_left = header.style.paddingLeft || "";
-        if (noAnimation) {
-          __ekursy_prev_header_transition = header.style.transition || "";
-          header.style.transition = "none";
-          header.style.paddingLeft = w + "px";
-          void header.offsetHeight;
-          setTimeout(() => {
-            header.style.transition =
-              __ekursy_prev_header_transition || "padding-left 0.25s ease";
-            __ekursy_prev_header_transition = null;
-          }, 50);
-        } else {
-          header.style.transition = header.style.transition
-            ? header.style.transition + ", padding-left 0.25s ease"
-            : "padding-left 0.25s ease";
-          header.style.paddingLeft = w + "px";
-        }
-        header.style.zIndex = header.style.zIndex || 2147483648;
-      }
-    } catch (e) {}
-
-    // Navbar
     try {
       const navbar = document.querySelector(".lambda-nav");
       if (navbar) {
@@ -486,23 +495,6 @@
       }
     } catch (e) {}
 
-    // Restore header padding-left
-    try {
-      const header =
-        document.getElementById("main-header") ||
-        document.querySelector(
-          "header, .main-header, #header, .header, .site-header, .navbar"
-        );
-      if (header) {
-        if (typeof __ekursy_prev_header_padding_left === "string") {
-          header.style.paddingLeft = __ekursy_prev_header_padding_left;
-        } else {
-          header.style.paddingLeft = "";
-        }
-      }
-    } catch (e) {}
-
-    // Restore navbar padding-left
     try {
       const navbar = document.querySelector(".lambda-nav");
       if (navbar) {
@@ -511,19 +503,6 @@
         } else {
           navbar.style.paddingLeft = "";
         }
-      }
-    } catch (e) {}
-
-    // Restore header burger display
-    try {
-      const headerBurger = document.getElementById(BURGER_ID);
-      if (headerBurger) {
-        if (typeof __ekursy_prev_burger_display === "string") {
-          headerBurger.style.display = __ekursy_prev_burger_display;
-        } else {
-          headerBurger.style.display = "";
-        }
-        headerBurger.removeAttribute("aria-hidden");
       }
     } catch (e) {}
   }
@@ -561,7 +540,7 @@
     btn.style.cursor = "pointer";
     btn.style.fontSize = "20px";
     btn.style.lineHeight = "1";
-    btn.style.color = "inherit";
+    btn.style.color = "white";
     btn.style.borderRadius = "6px";
     btn.style.transition = "background 0.15s";
     btn.innerHTML = '<span style="pointer-events:none">☰</span>';
@@ -571,7 +550,6 @@
       onToggle();
     });
 
-    // Hover style
     btn.addEventListener(
       "mouseenter",
       () => (btn.style.background = "rgba(0,0,0,0.06)")
@@ -596,6 +574,70 @@
     }
 
     window.__ekursy_burger_injected = true;
+  }
+
+  function removeDrawerButtons() {
+    try {
+      const els = document.querySelectorAll('button[data-toggler="drawers"]');
+      els.forEach((el) => {
+        try {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        } catch (e) {}
+      });
+
+      if (!window.__ekursy_drawers_guard_installed) {
+        try {
+          const mo = new MutationObserver((mutations) => {
+            for (const m of mutations) {
+              if (
+                m.type === "childList" &&
+                m.addedNodes &&
+                m.addedNodes.length
+              ) {
+                for (const n of m.addedNodes) {
+                  try {
+                    if (n && n.nodeType === 1) {
+                      const node = /** @type {Element} */ (n);
+                      if (
+                        node.matches &&
+                        node.matches('button[data-toggler="drawers"]')
+                      ) {
+                        try {
+                          if (node.parentNode)
+                            node.parentNode.removeChild(node);
+                        } catch (e) {}
+                        continue;
+                      }
+                      try {
+                        const found =
+                          node.querySelectorAll &&
+                          node.querySelectorAll(
+                            'button[data-toggler="drawers"]'
+                          );
+                        if (found && found.length) {
+                          found.forEach((f) => {
+                            try {
+                              if (f && f.parentNode)
+                                f.parentNode.removeChild(f);
+                            } catch (e) {}
+                          });
+                        }
+                      } catch (e) {}
+                    }
+                  } catch (e) {}
+                }
+              }
+            }
+          });
+          mo.observe(document.documentElement || document.body, {
+            childList: true,
+            subtree: true,
+          });
+          window.__ekursy_drawers_guard_mo = mo;
+          window.__ekursy_drawers_guard_installed = true;
+        } catch (e) {}
+      }
+    } catch (e) {}
   }
 
   if (!window.__ekursy_sidebar_listening) {
@@ -624,6 +666,14 @@
           const sidebarEl = document.getElementById(SIDEBAR_ID);
           if (sidebarEl) {
             applyWidthToSidebar(w, sidebarEl, false);
+          }
+        } catch (e) {}
+      }
+      if (msg.action === "setRemoveLambdaNav") {
+        try {
+          if (msg.remove) {
+            const nav = document.querySelector(".lambda-nav");
+            if (nav && nav.parentNode) nav.parentNode.removeChild(nav);
           }
         } catch (e) {}
       }
@@ -672,6 +722,20 @@
           () => {
             injectBurger();
             startPrefetch();
+            try {
+              chrome.storage.local.get(["ekursy_remove_lambda_nav"], (rr) => {
+                const removeNav = !!(rr && rr.ekursy_remove_lambda_nav);
+                if (removeNav) {
+                  try {
+                    const nav = document.querySelector(".lambda-nav");
+                    if (nav && nav.parentNode) nav.parentNode.removeChild(nav);
+                  } catch (e) {}
+                }
+              });
+            } catch (e) {}
+            try {
+              removeDrawerButtons();
+            } catch (e) {}
             if (persist) createSidebar({ noAnimation: true });
           },
           { once: true }
@@ -679,6 +743,20 @@
       } else {
         injectBurger();
         startPrefetch();
+        try {
+          chrome.storage.local.get(["ekursy_remove_lambda_nav"], (rr) => {
+            const removeNav = !!(rr && rr.ekursy_remove_lambda_nav);
+            if (removeNav) {
+              try {
+                const nav = document.querySelector(".lambda-nav");
+                if (nav && nav.parentNode) nav.parentNode.removeChild(nav);
+              } catch (e) {}
+            }
+          });
+        } catch (e) {}
+        try {
+          removeDrawerButtons();
+        } catch (e) {}
         if (persist) createSidebar({ noAnimation: true });
       }
     });
