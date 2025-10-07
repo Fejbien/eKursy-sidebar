@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "eKursy Sidebar",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Sidebar dla eKursy podobny jak był kiedyś",
     "icons": {
         "16": "icons/icon-16.png",
