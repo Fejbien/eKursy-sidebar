@@ -2,10 +2,11 @@
     if (window.location.href.startsWith("https://ekursy.put.poznan.pl/login")) {
         return;
     }
+
     const SIDEBAR_ID = "ekursy-sidebar-root";
     const BURGER_ID = "ekursy-burger-btn";
 
-    const DEFAULT_SIDEBAR_WIDTH = 240;
+    const DEFAULT_SIDEBAR_WIDTH = 260;
     let __ekursy_prev_body_padding_left = null;
     let __ekursy_prev_navbar_padding_left = null;
     let __ekursy_prev_body_transition = null;
@@ -285,49 +286,416 @@
                                 ekursy_courses: normalized,
                             });
                         } catch (e) {}
+
                         __ekursy_cached_courses = normalized;
 
                         const list = document.createElement("ul");
                         list.setAttribute("data-ekursy-courses", "1");
                         list.style.listStyle = "none";
-                        list.style.padding = "6px 0 12px 0";
-                        list.style.margin = "6px 0";
+                        list.style.padding = "0px 0 12px 0";
+                        list.style.margin = "0px 0";
                         list.style.maxHeight = "100%";
                         list.style.overflow = "auto";
 
+                        if (
+                            window.location.href.startsWith(
+                                "https://ekursy.put.poznan.pl/course/view.php?id="
+                            ) ||
+                            window.location.href.startsWith(
+                                "https://ekursy.put.poznan.pl/grade/report/user/index.php?id="
+                            ) ||
+                            window.location.href.startsWith(
+                                "https://ekursy.put.poznan.pl/admin/tool/lp/coursecompetencies.php?courseid="
+                            )
+                        ) {
+                            const id = new URL(
+                                window.location.href
+                            ).searchParams.get("id");
+                            // Course name
+                            const course = __ekursy_cached_courses.find(
+                                (c) => c.id == id
+                            );
+                            const courseLi = document.createElement("li");
+                            courseLi.style.padding = "4px 0px 4px 2px";
+                            const courseA = document.createElement("a");
+                            courseA.href =
+                                "https://ekursy.put.poznan.pl/course/view.php?id=" +
+                                encodeURIComponent(course.id);
+                            courseA.target = "_self";
+                            courseA.rel = "noopener noreferrer";
+                            courseA.style.display = "flex";
+                            courseA.style.alignItems = "top";
+                            courseA.style.gap = "2px";
+                            courseA.style.width = "100%";
+                            courseA.style.fontSize = "14px";
+                            courseA.style.fontWeight = "400";
+                            courseA.style.textDecoration = "none";
+                            courseA.style.color = "#fff";
+                            courseA.style.padding = "2px 3px";
+                            courseA.style.borderRadius = "6px";
+                            courseA.style.background = "transparent";
+                            courseA.style.border = "1px solid transparent";
+                            courseA.style.boxSizing = "border-box";
+                            courseA.addEventListener("mouseenter", () => {
+                                courseA.style.color = "rgba(172, 172, 172, 1)";
+                            });
+                            courseA.addEventListener("mouseleave", () => {
+                                courseA.style.color = "#fff";
+                            });
+                            const courseIcon = document.createElement("img");
+                            courseIcon.src = chrome.runtime.getURL(
+                                "icons/graduation_cap.svg"
+                            );
+                            courseIcon.alt = "";
+                            courseIcon.style.width = "20px";
+                            courseIcon.style.paddingTop = "4px";
+                            courseIcon.style.height = "20px";
+                            courseIcon.style.flexShrink = "0";
+                            courseIcon.style.opacity = "1";
+                            courseIcon.style.color = "white";
+                            const text = document.createElement("span");
+                            text.textContent =
+                                course.fullname ||
+                                course.shortname ||
+                                String(course.id);
+                            text.style.flex = "1";
+                            courseA.appendChild(courseIcon);
+                            courseA.appendChild(text);
+                            courseLi.appendChild(courseA);
+                            list.appendChild(courseLi);
+
+                            // Create "Kompetencje"
+                            const competencesLi = document.createElement("li");
+                            competencesLi.style.padding = "4px 0px 4px 0px";
+                            const competencesA = document.createElement("a");
+                            competencesA.href =
+                                "https://ekursy.put.poznan.pl/grade/report/user/index.php?id=" +
+                                id;
+                            competencesA.target = "_self";
+                            competencesA.rel = "noopener noreferrer";
+                            competencesA.textContent = "Kompetencje";
+                            competencesA.style.display = "flex";
+                            competencesA.style.alignItems = "top";
+                            competencesA.style.gap = "2px";
+                            competencesA.style.width = "100%";
+                            competencesA.style.textDecoration = "none";
+                            competencesA.style.color = "#fff";
+                            competencesA.style.background =
+                                "rgba(255,255,255,0.00)";
+                            competencesA.style.padding = "0px 0px";
+                            competencesA.style.boxSizing = "border-box";
+                            competencesA.style.fontSize = "14px";
+                            competencesA.style.fontWeight = "400";
+                            competencesA.addEventListener("mouseenter", () => {
+                                competencesA.style.color =
+                                    "rgba(172, 172, 172, 1)";
+                            });
+                            competencesA.addEventListener("mouseleave", () => {
+                                competencesA.style.color = "#fff";
+                            });
+                            const competencesIcon =
+                                document.createElement("img");
+                            competencesIcon.src = chrome.runtime.getURL(
+                                "icons/checkmark.svg"
+                            );
+                            competencesIcon.alt = "";
+                            competencesIcon.style.width = "20px";
+                            competencesIcon.style.paddingTop = "4px";
+                            competencesIcon.style.height = "20px";
+                            competencesIcon.style.flexShrink = "0";
+                            competencesIcon.style.opacity = "1";
+                            competencesA.prepend(competencesIcon);
+                            competencesLi.appendChild(competencesA);
+                            list.appendChild(competencesLi);
+
+                            // Create "Oceny"
+                            const gradesLi = document.createElement("li");
+                            gradesLi.style.padding = "4px 0px 4px 0px";
+                            const gradesA = document.createElement("a");
+                            gradesA.href =
+                                "https://ekursy.put.poznan.pl/grade/report/user/index.php?id=" +
+                                id;
+                            gradesA.target = "_self";
+                            gradesA.rel = "noopener noreferrer";
+                            gradesA.textContent = "Oceny";
+                            gradesA.style.display = "flex";
+                            gradesA.style.alignItems = "top";
+                            gradesA.style.gap = "2px";
+                            gradesA.style.width = "100%";
+                            gradesA.style.textDecoration = "none";
+                            gradesA.style.color = "#fff";
+                            gradesA.style.background = "rgba(255,255,255,0.00)";
+                            gradesA.style.padding = "0px 0px";
+                            gradesA.style.boxSizing = "border-box";
+                            gradesA.style.fontSize = "14px";
+                            gradesA.style.fontWeight = "400";
+                            gradesA.addEventListener("mouseenter", () => {
+                                gradesA.style.color = "rgba(172, 172, 172, 1)";
+                            });
+                            gradesA.addEventListener("mouseleave", () => {
+                                gradesA.style.color = "#fff";
+                            });
+                            const gradesIcon = document.createElement("img");
+                            gradesIcon.src =
+                                chrome.runtime.getURL("icons/grades.svg");
+                            gradesIcon.alt = "";
+                            gradesIcon.style.width = "20px";
+                            gradesIcon.style.paddingTop = "4px";
+                            gradesIcon.style.height = "20px";
+                            gradesIcon.style.flexShrink = "0";
+                            gradesIcon.style.opacity = "1";
+                            gradesA.prepend(gradesIcon);
+                            gradesLi.appendChild(gradesA);
+                            list.appendChild(gradesLi);
+
+                            const sectionNumbers = getAllSectionNumbers();
+                            const sections = sectionNumbers.map((n) => ({
+                                number: n,
+                                name: getSectionName(n),
+                            }));
+                            console.log(sections);
+                            sections.forEach((section) => {
+                                if (section.name === "not found") return;
+                                // Section item
+                                const li = document.createElement("li");
+                                li.style.padding = "4px 0px 4px 2px";
+                                const a = document.createElement("a");
+                                a.href = "#section-" + section.number;
+                                a.target = "_self";
+                                a.rel = "noopener noreferrer";
+                                a.style.display = "flex";
+                                a.style.alignItems = "top";
+                                a.style.gap = "2px";
+                                a.style.width = "100%";
+                                a.style.fontSize = "14px";
+                                a.style.fontWeight = "400";
+                                a.style.textDecoration = "none";
+                                a.style.color = "#fff";
+                                a.style.padding = "2px 3px";
+                                a.style.borderRadius = "6px";
+                                a.style.background = "transparent";
+                                a.style.border = "1px solid transparent";
+                                a.style.boxSizing = "border-box";
+                                a.addEventListener("mouseenter", () => {
+                                    a.style.color = "rgba(172, 172, 172, 1)";
+                                });
+                                a.addEventListener("mouseleave", () => {
+                                    a.style.color = "#fff";
+                                });
+                                const icon = document.createElement("img");
+                                icon.src =
+                                    chrome.runtime.getURL("icons/folder.svg");
+                                icon.alt = "";
+                                icon.style.width = "20px";
+                                icon.style.paddingTop = "4px";
+                                icon.style.height = "20px";
+                                icon.style.flexShrink = "0";
+                                icon.style.opacity = "1";
+                                icon.style.color = "white";
+
+                                const text = document.createElement("span");
+                                text.textContent = section.name;
+                                text.style.flex = "1";
+
+                                a.appendChild(icon);
+                                a.appendChild(text);
+                                li.appendChild(a);
+                                list.appendChild(li);
+                            });
+                        }
+
+                        // Create "Strona główna""
+                        const mainPageLi = document.createElement("li");
+                        mainPageLi.style.padding = "16px 0px 8px 0px";
+                        const mainPageA = document.createElement("a");
+                        mainPageA.href = "https://ekursy.put.poznan.pl";
+                        mainPageA.target = "_self";
+                        mainPageA.rel = "noopener noreferrer";
+                        mainPageA.textContent = "Strona główna";
+                        mainPageA.style.display = "flex";
+                        mainPageA.style.alignItems = "top";
+                        mainPageA.style.gap = "2px";
+                        mainPageA.style.width = "100%";
+                        mainPageA.style.textDecoration = "none";
+                        mainPageA.style.color = "#fff";
+                        mainPageA.style.background = "rgba(255,255,255,0.00)";
+                        mainPageA.style.padding = "0px 0px";
+                        mainPageA.style.boxSizing = "border-box";
+                        mainPageA.style.fontSize = "14px";
+                        mainPageA.style.fontWeight = "400";
+                        mainPageA.addEventListener("mouseenter", () => {
+                            mainPageA.style.color = "rgba(172, 172, 172, 1)";
+                        });
+                        mainPageA.addEventListener("mouseleave", () => {
+                            mainPageA.style.color = "#fff";
+                        });
+                        const mainPageIcon = document.createElement("img");
+                        mainPageIcon.src =
+                            chrome.runtime.getURL("icons/house.svg");
+                        mainPageIcon.alt = "";
+                        mainPageIcon.style.width = "20px";
+                        mainPageIcon.style.paddingTop = "4px";
+                        mainPageIcon.style.height = "20px";
+                        mainPageIcon.style.flexShrink = "0";
+                        mainPageIcon.style.opacity = "1";
+                        mainPageA.prepend(mainPageIcon);
+                        mainPageLi.appendChild(mainPageA);
+                        list.appendChild(mainPageLi);
+
+                        // Create "Kokpit"
+                        const cockpitLi = document.createElement("li");
+                        cockpitLi.style.padding = "8px 0px 8px 0px";
+                        const cockpitA = document.createElement("a");
+                        cockpitA.href = "https://ekursy.put.poznan.pl/my";
+                        cockpitA.target = "_self";
+                        cockpitA.rel = "noopener noreferrer";
+                        cockpitA.textContent = "Kokpit";
+                        cockpitA.style.display = "flex";
+                        cockpitA.style.alignItems = "top";
+                        cockpitA.style.gap = "2px";
+                        cockpitA.style.width = "100%";
+                        cockpitA.style.textDecoration = "none";
+                        cockpitA.style.color = "#fff";
+                        cockpitA.style.background = "rgba(255,255,255,0.00)";
+                        cockpitA.style.padding = "0px 0px";
+                        cockpitA.style.boxSizing = "border-box";
+                        cockpitA.style.fontSize = "14px";
+                        cockpitA.style.fontWeight = "400";
+                        cockpitA.addEventListener("mouseenter", () => {
+                            cockpitA.style.color = "rgba(172, 172, 172, 1)";
+                        });
+                        cockpitA.addEventListener("mouseleave", () => {
+                            cockpitA.style.color = "#fff";
+                        });
+                        const cockpitIcon = document.createElement("img");
+                        cockpitIcon.src =
+                            chrome.runtime.getURL("icons/meter.svg");
+                        cockpitIcon.alt = "";
+                        cockpitIcon.style.width = "20px";
+                        cockpitIcon.style.paddingTop = "4px";
+                        cockpitIcon.style.height = "20px";
+                        cockpitIcon.style.flexShrink = "0";
+                        cockpitIcon.style.opacity = "1";
+                        cockpitA.prepend(cockpitIcon);
+                        cockpitLi.appendChild(cockpitA);
+                        list.appendChild(cockpitLi);
+
+                        // Create "Kalendarz"
+                        const calendarLi = document.createElement("li");
+                        calendarLi.style.padding = "8px 0px 8px 0px";
+                        const calendarA = document.createElement("a");
+                        calendarA.href =
+                            "https://ekursy.put.poznan.pl/calendar/view.php?view=month";
+                        calendarA.target = "_self";
+                        calendarA.rel = "noopener noreferrer";
+                        calendarA.textContent = "Kalendarz";
+                        calendarA.style.display = "flex";
+                        calendarA.style.alignItems = "top";
+                        calendarA.style.gap = "2px";
+                        calendarA.style.width = "100%";
+                        calendarA.style.textDecoration = "none";
+                        calendarA.style.color = "#fff";
+                        calendarA.style.background = "rgba(255,255,255,0.00)";
+                        calendarA.style.padding = "0px 0px";
+                        calendarA.style.boxSizing = "border-box";
+                        calendarA.style.fontSize = "14px";
+                        calendarA.style.fontWeight = "400";
+                        calendarA.addEventListener("mouseenter", () => {
+                            calendarA.style.color = "rgba(172, 172, 172, 1)";
+                        });
+                        calendarA.addEventListener("mouseleave", () => {
+                            calendarA.style.color = "#fff";
+                        });
+                        const calendarIcon = document.createElement("img");
+                        calendarIcon.src =
+                            chrome.runtime.getURL("icons/calendar.svg");
+                        calendarIcon.alt = "";
+                        calendarIcon.style.width = "20px";
+                        calendarIcon.style.paddingTop = "4px";
+                        calendarIcon.style.height = "20px";
+                        calendarIcon.style.flexShrink = "0";
+                        calendarIcon.style.opacity = "1";
+                        calendarA.prepend(calendarIcon);
+                        calendarLi.appendChild(calendarA);
+                        list.appendChild(calendarLi);
+
+                        // Create "Prywatne pliki"
                         const filesLi = document.createElement("li");
-                        filesLi.style.padding = "6px 4px";
-                        filesLi.style.borderBottom = "1px solid #eee";
+                        filesLi.style.padding = "8px 0px 8px 0px";
                         const filesA = document.createElement("a");
                         filesA.href =
                             "https://ekursy.put.poznan.pl/user/files.php";
                         filesA.target = "_self";
                         filesA.rel = "noopener noreferrer";
                         filesA.textContent = "Prywatne pliki";
-                        filesA.style.display = "inline-block";
+                        filesA.textContent = "Prywatne pliki";
+                        filesA.style.display = "flex";
+                        filesA.style.alignItems = "top";
+                        filesA.style.gap = "2px";
                         filesA.style.width = "100%";
                         filesA.style.textDecoration = "none";
                         filesA.style.color = "#fff";
                         filesA.style.background = "rgba(255,255,255,0.00)";
-                        filesA.style.padding = "8px 10px";
-                        filesA.style.borderRadius = "8px";
+                        filesA.style.padding = "0px 0px";
                         filesA.style.boxSizing = "border-box";
-                        filesA.style.fontWeight = "600";
+                        filesA.style.fontSize = "14px";
+                        filesA.style.fontWeight = "400";
                         filesA.addEventListener("mouseenter", () => {
-                            filesA.style.background = "rgba(255,255,255,0.08)";
+                            filesA.style.color = "rgba(172, 172, 172, 1)";
                         });
                         filesA.addEventListener("mouseleave", () => {
-                            filesA.style.background = "rgba(255,255,255,0.00)";
+                            filesA.style.color = "#fff";
                         });
+                        const filesIcon = document.createElement("img");
+                        filesIcon.src = chrome.runtime.getURL("icons/file.svg");
+                        filesIcon.alt = "";
+                        filesIcon.style.width = "20px";
+                        filesIcon.style.paddingTop = "4px";
+                        filesIcon.style.height = "20px";
+                        filesIcon.style.flexShrink = "0";
+                        filesIcon.style.opacity = "1";
+                        filesA.prepend(filesIcon);
                         filesLi.appendChild(filesA);
                         list.appendChild(filesLi);
+
+                        // Create "Moje kursy"
+                        const myCoursesLi = document.createElement("li");
+                        myCoursesLi.style.padding = "8px 0px 8px 0px";
+                        const myCoursesSpan = document.createElement("span");
+                        myCoursesSpan.textContent = "Moje kursy";
+                        myCoursesSpan.style.display = "flex";
+                        myCoursesSpan.style.alignItems = "top";
+                        myCoursesSpan.style.gap = "2px";
+                        myCoursesSpan.style.width = "100%";
+                        myCoursesSpan.style.textDecoration = "none";
+                        myCoursesSpan.style.color = "#fff";
+                        myCoursesSpan.style.background =
+                            "rgba(255,255,255,0.00)";
+                        myCoursesSpan.style.padding = "0px 0px";
+                        myCoursesSpan.style.boxSizing = "border-box";
+                        myCoursesSpan.style.fontSize = "14px";
+                        myCoursesSpan.style.fontWeight = "400";
+                        myCoursesSpan.style.cursor = "default";
+                        const icon = document.createElement("img");
+                        icon.src = chrome.runtime.getURL(
+                            "icons/graduation_cap.svg"
+                        );
+                        icon.alt = "";
+                        icon.style.width = "20px";
+                        icon.style.paddingTop = "4px";
+                        icon.style.height = "20px";
+                        icon.style.flexShrink = "0";
+                        icon.style.opacity = "1";
+                        myCoursesSpan.prepend(icon);
+                        myCoursesLi.appendChild(myCoursesSpan);
+                        list.appendChild(myCoursesLi);
 
                         normalized
                             .filter((c) => !c.hidden)
                             .forEach((c) => {
+                                // Course item
                                 const li = document.createElement("li");
-                                li.style.padding = "6px 4px";
-                                li.style.borderBottom = "1px solid #eee";
+                                li.style.padding = "4px 0px 4px 2px";
 
                                 const a = document.createElement("a");
                                 a.href =
@@ -335,28 +703,44 @@
                                     encodeURIComponent(c.id);
                                 a.target = "_self";
                                 a.rel = "noopener noreferrer";
-                                a.textContent =
-                                    c.fullname || c.shortname || String(c.id);
-                                a.style.display = "inline-block";
+                                a.style.display = "flex";
+                                a.style.alignItems = "top";
+                                a.style.gap = "2px";
                                 a.style.width = "100%";
+                                a.style.fontSize = "14px";
+                                a.style.fontWeight = "400";
                                 a.style.textDecoration = "none";
                                 a.style.color = "#fff";
-                                a.style.padding = "6px 8px";
+                                a.style.padding = "2px 3px";
                                 a.style.borderRadius = "6px";
                                 a.style.background = "transparent";
                                 a.style.border = "1px solid transparent";
                                 a.style.boxSizing = "border-box";
+
                                 a.addEventListener("mouseenter", () => {
-                                    a.style.background =
-                                        "rgba(255,255,255,0.06)";
-                                    a.style.borderColor =
-                                        "rgba(255,255,255,0.12)";
+                                    a.style.color = "rgba(172, 172, 172, 1)";
                                 });
                                 a.addEventListener("mouseleave", () => {
-                                    a.style.background = "transparent";
-                                    a.style.borderColor = "transparent";
+                                    a.style.color = "#fff";
                                 });
 
+                                const icon = document.createElement("img");
+                                icon.src = chrome.runtime.getURL(
+                                    "icons/graduation_cap.svg"
+                                );
+                                icon.alt = "";
+                                icon.style.width = "20px";
+                                icon.style.paddingTop = "4px";
+                                icon.style.height = "20px";
+                                icon.style.flexShrink = "0";
+                                icon.style.opacity = "1";
+                                icon.style.color = "white";
+                                const text = document.createElement("span");
+                                text.textContent =
+                                    c.fullname || c.shortname || String(c.id);
+                                text.style.flex = "1";
+                                a.appendChild(icon);
+                                a.appendChild(text);
                                 li.appendChild(a);
                                 list.appendChild(li);
                             });
@@ -627,9 +1011,33 @@
 
         window.__ekursy_burger_injected = true;
     }
+    function getAllSectionNumbers() {
+        const sectionLis = document.querySelectorAll("li[id^='section-']");
+        return Array.from(sectionLis)
+            .map((li) => {
+                const match = li.id.match(/^section-(\d+)$/);
+                return match ? parseInt(match[1], 10) : null;
+            })
+            .filter((n) => n !== null);
+    }
+
+    function getSectionName(sectionNumber) {
+        const sectionLi = document.querySelector(`#section-${sectionNumber}`);
+        if (!sectionLi) return null;
+        const sectionNameH3 = sectionLi.querySelector("h3.sectionname");
+        if (!sectionNameH3) return "not found";
+        return sectionNameH3.textContent.trim();
+    }
 
     function removeDrawerButtons() {
         try {
+            const drawer = document.getElementsByClassName("drawer");
+            Array.from(drawer).forEach((d) => {
+                try {
+                    if (d && d.parentNode) d.parentNode.removeChild(d);
+                } catch (e) {}
+            });
+
             const els = document.querySelectorAll(
                 'button[data-toggler="drawers"]'
             );
