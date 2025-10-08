@@ -135,7 +135,7 @@ input:checked + .slider:before {
 }
 
 #manage-list {
-    max-height: 200px;
+    max-height: 400px;
     overflow-y: auto;
     margin-top: 8px;
     border: 1px solid var(--border-color);

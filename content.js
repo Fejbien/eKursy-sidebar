@@ -8,6 +8,7 @@
         HEADER_SELECTOR:
             "header, .main-header, #header, .header, .site-header, #main-header, .navbar",
         LAMBDA_NAV_SELECTOR: ".lambda-nav",
+        DRAWER_SELECTOR: ".drawer-toggler",
     };
 
     // --- STATE MANAGEMENT ---
@@ -243,6 +244,10 @@
             const w = Number(width) || CONFIG.DEFAULT_SIDEBAR_WIDTH;
             const body = document.body;
             const navbar = document.querySelector(CONFIG.LAMBDA_NAV_SELECTOR);
+            const drawer = document.querySelector(CONFIG.DRAWER_SELECTOR);
+            if (drawer) {
+                drawer.style.display = "none";
+            }
 
             if (body) {
                 if (state.prevBodyPaddingLeft === null) {
@@ -560,21 +565,23 @@
                                 icon: "icons/grades.svg",
                             })
                         );
-                    }
 
-                    const sectionNumbers = getAllSectionNumbers();
-                    const sections = sectionNumbers.map((n) => ({
-                        number: n,
-                        name: getSectionName(n),
-                    }));
-                    sections.forEach((section) => {
-                        if (section.name === "not found") return;
-                        // Section item
-                        ui.createSectionLi({
-                            sectionName: section.name,
-                            sectionNumber: section.number,
+                        const sectionNumbers = getAllSectionNumbers();
+                        const sections = sectionNumbers.map((n) => ({
+                            number: n,
+                            name: getSectionName(n),
+                        }));
+                        sections.forEach((section) => {
+                            if (section.name === "not found") return;
+                            // Section item
+                            list.appendChild(
+                                ui.createSectionLi({
+                                    sectionName: section.name,
+                                    sectionNumber: section.number,
+                                })
+                            );
                         });
-                    });
+                    }
                 }
 
                 // General links - render on all pages
