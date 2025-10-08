@@ -7,46 +7,60 @@
         <link rel="stylesheet" href="popup.css" />
     </head>
     <body>
-        <div class="container">
-            <h1>eKursy Sidebar</h1>
-            <p></p>
-            <hr />
-            <label>
-                <input type="checkbox" id="persist" /> Ciągły sidebar na
-                stronach
-            </label>
+        <div class="wrapper">
+            <header class="header">
+                <h1>eKursy Sidebar</h1>
+                <p>Ustawienia paska bocznego</p>
+            </header>
 
-            <hr />
-            <div id="manage-root">
-                <h2>Zarządzaj kursami (zaznaczone nie beda widoczne)</h2>
-                <div id="manage-list">ładowanie</div>
+            <div class="setting-group">
+                <div class="setting-label">
+                    <h3>Ciągły sidebar</h3>
+                    <p>Zachowaj sidebar widoczny na wszystkich stronach.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="persist" />
+                    <span class="slider"></span>
+                </label>
             </div>
-            <hr />
-            <label>
-                <input type="checkbox" id="remove-lambda-nav" /> Usuń
-                .lambda-nav (ten drugi header useless)
-            </label>
-            <hr />
-            <div id="width-root" style="margin-top: 8px">
-                <label for="sidebar-width"
-                    >Szerokość w px (domyslnie 260)</label
-                >
+
+            <div class="setting-group">
+                <div class="setting-label">
+                    <h3>Usuń zbędny nagłówek</h3>
+                    <p>Ukryj dodatkowy pasek nawigacyjny `.lambda-nav`.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="remove-lambda-nav" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-group vertical">
+                <div class="setting-label">
+                    <h3>Szerokość paska (px)</h3>
+                    <p>Domyślnie: 260px. Zakres: 40-2000px.</p>
+                </div>
                 <input
                     id="sidebar-width"
                     type="number"
                     min="40"
                     max="2000"
-                    step="1"
-                    value="260"
+                    step="10"
                 />
-                <div style="font-size: 12px; color: #666; margin-top: 6px">
-                    40px - 2000px
-                </div>
             </div>
+
+            <div class="setting-group vertical">
+                <div class="setting-label">
+                    <h3>Zarządzaj kursami</h3>
+                    <p>Zaznaczone kursy będą *NIE* widoczne w sidebarze.</p>
+                </div>
+                <div id="manage-list">ładowanie...</div>
+            </div>
+
+            <footer>
+                <p>Icons by Freepik, Dazzle UI, Konstantin Filatov</p>
+            </footer>
         </div>
-        <p>Icons by Freepik - Flaticon</p>
-        <p>Icons by Dazzle UI - Dazzle Line Icons</p>
-        <p>Icons by Konstantin Filatov - Gentlecons Interface Icons</p>
         <script src="popup.js"></script>
     </body>
 </html>

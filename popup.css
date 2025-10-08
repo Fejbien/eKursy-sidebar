@@ -1,66 +1,193 @@
 :root {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-        Arial;
+    --bg-color: #f7f8fa;
+    --surface-color: #ffffff;
+    --text-primary: #1f2328;
+    --text-secondary: #6e7781;
+    --border-color: #dce0e5;
+    --accent-color: #0b5fff;
+    --accent-color-light: #e6efff;
+    --font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
 }
+
 body {
-    margin: 12px;
-    width: 260px;
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    width: 320px;
+    margin: 0;
+    color: var(--text-primary);
 }
-.container h1 {
-    font-size: 16px;
-    margin: 0 0 8px;
+
+.wrapper {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
-button {
+
+.header {
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header h1 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.header p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0 0;
+}
+
+.setting-group {
+    background-color: var(--surface-color);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.setting-group.vertical {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.setting-label h3 {
+    font-size: 14px;
+    margin: 0;
+    font-weight: 600;
+}
+
+.setting-label p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 2px 0 0;
+}
+
+.toggle-switch {
+    position: relative;
     display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+#sidebar-width {
+    width: 100%;
+    box-sizing: border-box;
     padding: 8px 12px;
     border-radius: 6px;
-    border: 1px solid #0b5fff;
-    background: #1a73e8;
-    color: #fff;
-    cursor: pointer;
-}
-button:active {
-    transform: translateY(1px);
-}
-label {
-    display: block;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
     margin-top: 8px;
-    font-size: 13px;
+    font-size: 14px;
+    text-align: center;
 }
-#manage-root h2 {
-    font-size: 13px;
-    margin: 8px 0;
+
+#sidebar-width:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-color-light);
 }
+
 #manage-list {
-    max-height: 220px;
-    overflow: auto;
-    border: 1px solid #eee;
-    padding: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 8px;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
-    background: #fafafa;
+    background: var(--surface-color);
+    padding: 4px;
 }
+
 #manage-list .item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px;
-    border-bottom: 1px solid #f1f1f1;
-}
-#manage-list .item:last-child {
-    border-bottom: 0;
-}
-#manage-list .item label {
-    flex: 1;
-    padding-right: 8px;
+    border-radius: 4px;
+    padding: 6px 8px;
+    transition: background-color 0.2s ease-in-out;
 }
 
-#width-root {
-    margin-top: 8px;
+#manage-list .item + .item {
+    border-top: 1px solid var(--border-color);
 }
-#sidebar-width {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 6px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+
+#manage-list .item:hover {
+    background-color: var(--bg-color);
+}
+
+#manage-list .item label {
+    flex: 1;
+    font-size: 13px;
+    padding-right: 8px;
+    margin: 0;
+    color: var(--text-primary);
+    user-select: none;
+}
+
+#manage-list .item input[type="checkbox"] {
+    accent-color: var(--accent-color);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+#manage-list .item input[type="checkbox"] {
+    accent-color: var(--accent-color);
+    width: 16px;
+    height: 16px;
+}
+
+footer {
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+}
+footer p {
+    margin: 0;
 }

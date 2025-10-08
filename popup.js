@@ -1,149 +1,98 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const persist = document.getElementById("persist");
+document.addEventListener("DOMContentLoaded", async () => {
+    const persistInput = document.getElementById("persist");
+    const removeNavInput = document.getElementById("remove-lambda-nav");
+    const sidebarWidthInput = document.getElementById("sidebar-width");
     const manageList = document.getElementById("manage-list");
 
-    chrome.storage.local.get(["persistSidebar"], (res) => {
-        persist.checked = !!res.persistSidebar;
-    });
-
-    function renderManage(items) {
+    const sendMessageToTab = async (message) => {
         try {
-            manageList.innerHTML = "";
-            if (!items || !items.length) {
-                manageList.textContent = "No courses found.";
-                return;
+            const [tab] = await chrome.tabs.query({
+                active: true,
+                currentWindow: true,
+            });
+            if (tab) {
+                await chrome.tabs.sendMessage(tab.id, message);
             }
-            items.forEach((c) => {
-                const row = document.createElement("div");
-                row.className = "item";
-                const label = document.createElement("label");
-                label.textContent = c.fullname || c.shortname || String(c.id);
-                const cb = document.createElement("input");
-                cb.type = "checkbox";
-                cb.checked = !!c.hidden;
-                cb.addEventListener("change", () => {
-                    try {
-                        chrome.storage.local.get(["ekursy_courses"], (r) => {
-                            const arr = (r && r.ekursy_courses) || [];
-                            const updated = arr.map((x) =>
-                                x && String(x.id) === String(c.id)
-                                    ? Object.assign({}, x, {
-                                          hidden: !!cb.checked,
-                                      })
-                                    : x
-                            );
-                            chrome.storage.local.set(
-                                { ekursy_courses: updated },
-                                () => {
-                                    chrome.tabs.query(
-                                        { active: true, currentWindow: true },
-                                        (tabs) => {
-                                            if (!tabs || !tabs.length) return;
-                                            try {
-                                                chrome.tabs.sendMessage(
-                                                    tabs[0].id,
-                                                    {
-                                                        action: "refreshCourses",
-                                                    }
-                                                );
-                                            } catch (e) {}
-                                        }
-                                    );
-                                }
-                            );
-                        });
-                    } catch (e) {}
-                });
-                row.appendChild(label);
-                row.appendChild(cb);
-                manageList.appendChild(row);
-            });
-        } catch (e) {
-            manageList.textContent = "Error loading courses";
-        }
-    }
+        } catch (e) {}
+    };
 
-    try {
-        chrome.storage.local.get(["ekursy_courses"], (r) => {
-            const arr = (r && r.ekursy_courses) || [];
-            renderManage(arr);
+    const setupToggle = async (element, key, action) => {
+        const storage = await chrome.storage.local.get([key]);
+        element.checked = !!storage[key];
+
+        element.addEventListener("change", async () => {
+            const value = element.checked;
+            await chrome.storage.local.set({ [key]: value });
+            await sendMessageToTab({ action: action, value: value });
         });
-    } catch (e) {
-        manageList.textContent = "Error reading storage";
-    }
+    };
 
-    try {
-        const sidebarWidthInput = document.getElementById("sidebar-width");
-        if (sidebarWidthInput) {
-            chrome.storage.local.get(["ekursy_sidebar_width"], (r) => {
-                const w = parseInt(r && r.ekursy_sidebar_width, 10);
-                if (!Number.isNaN(w)) sidebarWidthInput.value = String(w);
-            });
+    setupToggle(persistInput, "persistSidebar", "setPersist");
+    setupToggle(
+        removeNavInput,
+        "ekursy_remove_lambda_nav",
+        "setRemoveLambdaNav"
+    );
 
-            sidebarWidthInput.addEventListener("change", () => {
-                let v = parseInt(sidebarWidthInput.value, 10);
-                if (Number.isNaN(v)) v = 240;
-                v = Math.max(40, Math.min(2000, v));
-                sidebarWidthInput.value = String(v);
-                try {
-                    chrome.storage.local.set(
-                        { ekursy_sidebar_width: v },
-                        () => {
-                            chrome.tabs.query(
-                                { active: true, currentWindow: true },
-                                (tabs) => {
-                                    if (!tabs || !tabs.length) return;
-                                    try {
-                                        chrome.tabs.sendMessage(tabs[0].id, {
-                                            action: "updateSidebarWidth",
-                                            width: v,
-                                        });
-                                    } catch (e) {}
-                                }
-                            );
-                        }
-                    );
-                } catch (e) {}
-            });
-        }
-    } catch (e) {}
+    const { ekursy_sidebar_width } = await chrome.storage.local.get([
+        "ekursy_sidebar_width",
+    ]);
+    sidebarWidthInput.value = parseInt(ekursy_sidebar_width, 10) || 260;
 
-    try {
-        const removeNav = document.getElementById("remove-lambda-nav");
-        if (removeNav) {
-            chrome.storage.local.get(["ekursy_remove_lambda_nav"], (r) => {
-                removeNav.checked = !!r.ekursy_remove_lambda_nav;
-            });
-            removeNav.addEventListener("change", () => {
-                try {
-                    chrome.storage.local.set(
-                        { ekursy_remove_lambda_nav: !!removeNav.checked },
-                        () => {
-                            chrome.tabs.query(
-                                { active: true, currentWindow: true },
-                                (tabs) => {
-                                    if (!tabs || !tabs.length) return;
-                                    try {
-                                        chrome.tabs.sendMessage(tabs[0].id, {
-                                            action: "setRemoveLambdaNav",
-                                            remove: !!removeNav.checked,
-                                        });
-                                        if (!removeNav.checked) {
-                                            try {
-                                                chrome.tabs.reload(tabs[0].id);
-                                            } catch (e) {}
-                                        }
-                                    } catch (e) {}
-                                }
-                            );
-                        }
-                    );
-                } catch (e) {}
-            });
-        }
-    } catch (e) {}
+    sidebarWidthInput.addEventListener("change", async () => {
+        let v = parseInt(sidebarWidthInput.value, 10);
+        if (isNaN(v)) v = 260;
+        v = Math.max(40, Math.min(2000, v));
+        sidebarWidthInput.value = v;
 
-    persist.addEventListener("change", () => {
-        chrome.storage.local.set({ persistSidebar: persist.checked });
+        await chrome.storage.local.set({ ekursy_sidebar_width: v });
+        await sendMessageToTab({ action: "updateSidebarWidth", width: v });
     });
+
+    const renderManageList = (courses = []) => {
+        manageList.innerHTML = "";
+        if (!courses.length) {
+            manageList.textContent = "Brak kursów do zarządzania.";
+            return;
+        }
+
+        courses.forEach((course) => {
+            const row = document.createElement("div");
+            row.className = "item";
+
+            const label = document.createElement("label");
+            label.textContent =
+                course.fullname || course.shortname || `Kurs ID: ${course.id}`;
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = !!course.hidden;
+
+            checkbox.addEventListener("change", async () => {
+                const { ekursy_courses: currentCourses = [] } =
+                    await chrome.storage.local.get(["ekursy_courses"]);
+                const updatedCourses = currentCourses.map((c) =>
+                    c.id === course.id ? { ...c, hidden: checkbox.checked } : c
+                );
+                await chrome.storage.local.set({
+                    ekursy_courses: updatedCourses,
+                });
+                await sendMessageToTab({ action: "refreshCourses" });
+            });
+
+            row.appendChild(label);
+            row.appendChild(checkbox);
+            manageList.appendChild(row);
+        });
+    };
+
+    try {
+        const { ekursy_courses } = await chrome.storage.local.get([
+            "ekursy_courses",
+        ]);
+        renderManageList(ekursy_courses);
+    } catch (e) {
+        manageList.textContent = "Błąd podczas ładowania kursów.";
+        console.error("Error loading courses:", e);
+    }
 });
